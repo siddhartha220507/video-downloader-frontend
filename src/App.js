@@ -97,7 +97,7 @@ function App() {
   };
 
   // STEP 2: DOWNLOAD
-  const download = async () => {
+  const download = async (type) => {
     setIsDownloading(true);
     try {
       const res = await fetch(`${API_BASE_URL}/api/download`, {
@@ -105,11 +105,25 @@ function App() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ url }),
+        body: JSON.stringify({ url, type }), // 🔥 type send ho raha hai
       });
 
-      const data = await res.json();
+      const text = await res.text();
+
+      if (!res.ok) {
+        alert("Error: " + text);
+        return;
+      }
+
+      const data = JSON.parse(text);
+
+      if (!data.downloadUrl) {
+        alert("No download link");
+        return;
+      }
+
       window.open(data.downloadUrl);
+
     } catch (err) {
       console.error(err);
       alert("Error downloading file");
