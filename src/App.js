@@ -10,7 +10,6 @@ function App() {
   const [isLoadingInfo, setIsLoadingInfo] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
   const [themeIndex, setThemeIndex] = useState(0);
-  const [cursorPos, setCursorPos] = useState({ x: 0, y: 0 });
 
   const themes = ['dark', 'dark-blue', 'light'];
 
