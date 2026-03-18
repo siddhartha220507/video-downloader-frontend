@@ -73,7 +73,7 @@ function App() {
   };
 
   // Base API URL for Backend Connection (Support Local & Production Deployment)
-  const API_BASE_URL = process.env.REACT_APP_API_URL || "https://pretty-art-production-ba0d.up.railway.app";
+  const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
   
   // Test backend connection and log for debugging
   useEffect(() => {
