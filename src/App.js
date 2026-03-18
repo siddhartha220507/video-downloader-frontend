@@ -104,7 +104,7 @@ function App() {
 
       const data = await res.json();
       console.log("📥 Info Response:", data);
-      setVideo(data);
+      setVideo(data.videoDetails || data);
     } catch (err) {
       console.error("🔴 Fetch Error:", err.message);
       alert("Error fetching info: " + err.message);
@@ -227,7 +227,7 @@ function App() {
                   </div>
                 )}
 
-                {!isLoadingInfo && video?.title && (
+                {!isLoadingInfo && video && (
                   <div className="glass-panel video-wrapper animate-fade-in">
                     <div className="video-info-container">
                       <img src={video?.thumbnail || "https://via.placeholder.com/300"} alt="Video thumbnail" className="video-thumbnail" />
