@@ -19,10 +19,13 @@ function App() {
   // Floating Lamp Pull State
   const [isPullingLamp, setIsPullingLamp] = useState(false);
 
-  // WebGL Fluid Background Simulator
+  // WebGL Fluid Background Simulator (disabled on mobile for better performance)
   useEffect(() => {
-    // Initialize WebGL Fluid if the script is loaded
-    if (window.WebGLFluid) {
+    // Check if device is mobile/tablet
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    
+    // Initialize WebGL Fluid only on desktop devices for performance
+    if (window.WebGLFluid && !isMobile) {
       window.WebGLFluid(document.querySelector('canvas'), {
         IMMEDIATE: true,
         TRIGGER: 'hover',
@@ -113,7 +116,7 @@ function App() {
     }
   };
 
-  // STEP 2: DOWNLOAD
+  // STEP 2: DOWNLOAD with proper filename
   const download = async (type) => {
     setIsDownloading(true);
     try {
@@ -144,7 +147,38 @@ function App() {
         return;
       }
 
-      window.open(data.downloadUrl);
+      // Use filename from backend or generate one
+      const filename = data.filename || `${data.title || "video"}.${type === "mp3" ? "mp3" : "mp4"}`;
+      
+      // Fetch the file as blob for proper download support (especially mobile)
+      try {
+        const fileRes = await fetch(data.downloadUrl);
+        if (!fileRes.ok) {
+          throw new Error("Failed to fetch file");
+        }
+        
+        const blob = await fileRes.blob();
+        
+        // Create a blob URL and trigger download
+        const blobUrl = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = blobUrl;
+        link.download = filename;
+        link.style.display = 'none';
+        
+        document.body.appendChild(link);
+        link.click();
+        
+        // Cleanup
+        document.body.removeChild(link);
+        URL.revokeObjectURL(blobUrl);
+        
+        console.log("✅ Download started:", filename);
+      } catch (blobErr) {
+        // Fallback to window.open for cases where blob fetch fails
+        console.warn("⚠️ Blob download failed, using fallback:", blobErr.message);
+        window.open(data.downloadUrl, '_blank');
+      }
 
     } catch (err) {
       console.error("🔴 Download Error:", err.message);
