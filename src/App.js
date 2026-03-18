@@ -87,6 +87,7 @@ function App() {
       });
 
       const data = await res.json();
+      console.log("📥 Info Response:", data);
       setVideo(data);
     } catch (err) {
       console.error(err);
@@ -205,12 +206,12 @@ function App() {
                   </div>
                 )}
 
-                {!isLoadingInfo && video && (
+                {!isLoadingInfo && video?.title && (
                   <div className="glass-panel video-wrapper animate-fade-in">
                     <div className="video-info-container">
-                      <img src={video.thumbnail} alt="Video thumbnail" className="video-thumbnail" />
+                      <img src={video?.thumbnail || "https://via.placeholder.com/300"} alt="Video thumbnail" className="video-thumbnail" />
                       <div className="video-details">
-                        <h3 className="video-title">{video.title}</h3>
+                        <h3 className="video-title">{video?.title || "No title"}</h3>
                         <div className="video-action-row">
                           <button
                             onClick={() => download("video-only")}
