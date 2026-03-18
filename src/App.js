@@ -137,22 +137,22 @@ function App() {
       return;
     }
 
-    setIsDownloading(true);
     try {
-      console.log("🚀 Starting download via backend redirect...");
+      console.log("🚀 Starting download...");
+      console.log("📍 API URL:", API_BASE_URL);
+      console.log("🎬 YouTube URL:", url);
 
-      // Direct redirect to backend download endpoint
-      window.location.href = `${API_BASE_URL}/api/download?url=${encodeURIComponent(url)}`;
+      const encodedUrl = encodeURIComponent(url);
+      const downloadUrl = `${API_BASE_URL}/api/download?url=${encodedUrl}`;
+      
+      console.log("🔗 Download endpoint:", downloadUrl);
 
-      // Reset state after redirect
-      setTimeout(() => {
-        setIsDownloading(false);
-      }, 2000);
+      // Use window.location for direct redirect
+      window.location.href = downloadUrl;
 
     } catch (err) {
       console.error("🔴 Error:", err.message);
       alert("❌ Download Failed:\n" + err.message);
-      setIsDownloading(false);
     }
   };
 
