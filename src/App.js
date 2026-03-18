@@ -130,7 +130,7 @@ function App() {
     }
   };
 
-  // STEP 2: DOWNLOAD MP3 - STREAMING VIA BACKEND PROXY
+  // STEP 2: DOWNLOAD MP3 - DIRECT REDIRECT
   const download = () => {
     if (!url) {
       alert("❌ Please enter a YouTube URL");
@@ -139,25 +139,15 @@ function App() {
 
     setIsDownloading(true);
     try {
-      console.log("🚀 Starting download via backend proxy...");
+      console.log("🚀 Starting download via backend redirect...");
 
-      // Create download link via backend GET request
-      const downloadLink = document.createElement("a");
-      downloadLink.href = `${API_BASE_URL}/api/download?url=${encodeURIComponent(url)}`;
-      downloadLink.download = "audio.mp3";
-      downloadLink.style.display = "none";
+      // Direct redirect to backend download endpoint
+      window.location.href = `${API_BASE_URL}/api/download?url=${encodeURIComponent(url)}`;
 
-      document.body.appendChild(downloadLink);
-
-      console.log("⬇️ Triggering download...");
-      downloadLink.click();
-
-      // Cleanup
+      // Reset state after redirect
       setTimeout(() => {
-        document.body.removeChild(downloadLink);
-        console.log("✅ Download started!");
         setIsDownloading(false);
-      }, 500);
+      }, 2000);
 
     } catch (err) {
       console.error("🔴 Error:", err.message);
