@@ -76,7 +76,7 @@ function App() {
   useEffect(() => {
     console.log("🔗 API Base URL:", API_BASE_URL);
     console.log("🔗 Environment Variable:", process.env.REACT_APP_API_URL || "NOT SET");
-  }, []);
+  }, [API_BASE_URL]);
 
   // STEP 1: GET INFO
   const getInfo = async () => {
