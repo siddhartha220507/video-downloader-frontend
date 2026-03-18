@@ -230,7 +230,12 @@ function App() {
                 {!isLoadingInfo && video && (
                   <div className="glass-panel video-wrapper animate-fade-in">
                     <div className="video-info-container">
-                      <img src={video?.thumbnail || "https://via.placeholder.com/300"} alt="Video thumbnail" className="video-thumbnail" />
+                      <img 
+                        src={video?.thumbnail || "https://via.placeholder.com/300"} 
+                        alt="Video thumbnail" 
+                        className="video-thumbnail"
+                        onError={(e) => e.target.src = "https://via.placeholder.com/300"}
+                      />
                       <div className="video-details">
                         <h3 className="video-title">{video?.title || "No title"}</h3>
                         <div className="video-action-row">
