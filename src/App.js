@@ -7,6 +7,7 @@ function App() {
   const [video, setVideo] = useState(null);
 
   // Download State
+  const [isLoadingInfo, setIsLoadingInfo] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
   const [themeIndex, setThemeIndex] = useState(0);
 
@@ -100,7 +101,34 @@ function App() {
     testConnection();
   }, [API_BASE_URL]);
 
+  // STEP 1: GET INFO
+  const getInfo = async () => {
+    if (!url) return;
+    setIsLoadingInfo(true);
+    setVideo(null);
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/info`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ url }),
+      });
 
+      if (!res.ok) {
+        const errorText = await res.text();
+        console.error("❌ Error:", errorText);
+        return;
+      }
+
+      const data = await res.json();
+      setVideo(data.videoDetails || data);
+    } catch (err) {
+      console.error("🔴 Error:", err.message);
+    } finally {
+      setIsLoadingInfo(false);
+    }
+  };
 
   // STEP 2: DOWNLOAD MP3 - STREAMING VIA BACKEND PROXY
   const download = () => {
@@ -183,8 +211,17 @@ function App() {
                       value={url}
                       onChange={(e) => setUrl(e.target.value)}
                       className="form-input"
-                      disabled={isDownloading}
+                      disabled={isLoadingInfo || isDownloading}
                     />
+                    <button
+                      onClick={getInfo}
+                      className={`form-submit-btn ${hoveredBtn === 'getInfo' ? 'hovered' : ''}`}
+                      onMouseEnter={() => setHoveredBtn('getInfo')}
+                      onMouseLeave={() => setHoveredBtn(null)}
+                      disabled={isLoadingInfo || isDownloading || !url}
+                    >
+                      {isLoadingInfo ? 'Authenticating...' : 'Get Info'}
+                    </button>
                     <button
                       onClick={() => download()}
                       className={`form-submit-btn ${hoveredBtn === 'download' ? 'hovered' : ''}`}
@@ -199,10 +236,44 @@ function App() {
                   </div>
                 </div>
 
+                {isLoadingInfo && (
+                  <div className="glass-panel loader-box animate-fade-in">
+                    <div className="loader-spinner"></div>
+                    <p className="loader-text">Fetching media information. Please wait...</p>
+                  </div>
+                )}
+
                 {isDownloading && (
                   <div className="glass-panel loader-box animate-fade-in">
                     <div className="loader-spinner secondary"></div>
                     <p className="loader-text">🎵 Preparing your MP3... Please wait (20–30 sec)</p>
+                  </div>
+                )}
+
+                {!isLoadingInfo && video && (
+                  <div className="glass-panel video-wrapper animate-fade-in">
+                    <div className="video-info-container">
+                      <img 
+                        src={video?.thumbnail || "https://via.placeholder.com/300"} 
+                        alt="Video thumbnail" 
+                        className="video-thumbnail"
+                        onError={(e) => e.target.src = "https://via.placeholder.com/300"}
+                      />
+                      <div className="video-details">
+                        <h3 className="video-title">{video?.title || "No title"}</h3>
+                        <div className="video-action-row">
+                          <button
+                            onClick={() => download()}
+                            className={`download-btn ${hoveredBtn === 'mp3' ? 'hovered' : ''}`}
+                            onMouseEnter={() => setHoveredBtn('mp3')}
+                            onMouseLeave={() => setHoveredBtn(null)}
+                            disabled={isDownloading}
+                          >
+                            🎵 Download MP3
+                          </button>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 )}
 
