@@ -136,74 +136,38 @@ function App() {
     }
   };
 
-  // STEP 2: DOWNLOAD with proper filename
-  const download = async (type) => {
+  // STEP 2: DOWNLOAD MP3 - STREAMING VIA BACKEND PROXY
+  const download = () => {
+    if (!url) {
+      alert("❌ Please enter a YouTube URL");
+      return;
+    }
+
     setIsDownloading(true);
     try {
-      console.log("🚀 Downloading from:", `${API_BASE_URL}/api/download`);
-      const res = await fetch(`${API_BASE_URL}/api/download`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ url, type }),
-      });
+      console.log("🚀 Starting download via backend proxy...");
 
-      console.log("📊 Download Response Status:", res.status, res.statusText);
-      
-      const text = await res.text();
+      // Create download link via backend GET request
+      const downloadLink = document.createElement("a");
+      downloadLink.href = `${API_BASE_URL}/api/download?url=${encodeURIComponent(url)}`;
+      downloadLink.download = "audio.mp3";
+      downloadLink.style.display = "none";
 
-      if (!res.ok) {
-        console.error("❌ Download Error:", res.status, text);
-        alert("Error: " + text);
-        return;
-      }
+      document.body.appendChild(downloadLink);
 
-      const data = JSON.parse(text);
-      console.log("📥 Download Data:", data);
+      console.log("⬇️ Triggering download...");
+      downloadLink.click();
 
-      if (!data.downloadUrl) {
-        alert("No download link");
-        return;
-      }
-
-      // Use filename from backend or generate one
-      const filename = data.filename || `${data.title || "video"}.${type === "mp3" ? "mp3" : "mp4"}`;
-      
-      // Fetch the file as blob for proper download support (especially mobile)
-      try {
-        const fileRes = await fetch(data.downloadUrl);
-        if (!fileRes.ok) {
-          throw new Error("Failed to fetch file");
-        }
-        
-        const blob = await fileRes.blob();
-        
-        // Create a blob URL and trigger download
-        const blobUrl = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = blobUrl;
-        link.download = filename;
-        link.style.display = 'none';
-        
-        document.body.appendChild(link);
-        link.click();
-        
-        // Cleanup
-        document.body.removeChild(link);
-        URL.revokeObjectURL(blobUrl);
-        
-        console.log("✅ Download started:", filename);
-      } catch (blobErr) {
-        // Fallback to window.open for cases where blob fetch fails
-        console.warn("⚠️ Blob download failed, using fallback:", blobErr.message);
-        window.open(data.downloadUrl, '_blank');
-      }
+      // Cleanup
+      setTimeout(() => {
+        document.body.removeChild(downloadLink);
+        console.log("✅ Download started!");
+        setIsDownloading(false);
+      }, 500);
 
     } catch (err) {
-      console.error("🔴 Download Error:", err.message);
-      alert("Error downloading file: " + err.message);
-    } finally {
+      console.error("🔴 Error:", err.message);
+      alert("❌ Download Failed:\n" + err.message);
       setIsDownloading(false);
     }
   };
@@ -264,6 +228,17 @@ function App() {
                     >
                       {isLoadingInfo ? 'Authenticating...' : 'Get Info'}
                     </button>
+                    <button
+                      onClick={() => download()}
+                      className={`form-submit-btn ${hoveredBtn === 'directDownload' ? 'hovered' : ''}`}
+                      style={{ background: 'linear-gradient(135deg, #00d4ff, #0099ff)' }}
+                      onMouseEnter={() => setHoveredBtn('directDownload')}
+                      onMouseLeave={() => setHoveredBtn(null)}
+                      disabled={isLoadingInfo || isDownloading || !url}
+                      title="Direct MP3 download - no preview needed!"
+                    >
+                      {isDownloading ? '⏳ Downloading...' : '⬇️ Download MP3'}
+                    </button>
                   </div>
                 </div>
 
@@ -277,7 +252,7 @@ function App() {
                 {isDownloading && (
                   <div className="glass-panel loader-box animate-fade-in">
                     <div className="loader-spinner secondary"></div>
-                    <p className="loader-text">Downloading media file. Almost there...</p>
+                    <p className="loader-text">🎵 Downloading MP3 music. Almost there...</p>
                   </div>
                 )}
 
@@ -294,13 +269,13 @@ function App() {
                         <h3 className="video-title">{video?.title || "No title"}</h3>
                         <div className="video-action-row">
                           <button
-                            onClick={() => download("mp4")}
-                            className={`download-btn ${hoveredBtn === 'mp4' ? 'hovered' : ''}`}
-                            onMouseEnter={() => setHoveredBtn('mp4')}
+                            onClick={() => download()}
+                            className={`download-btn ${hoveredBtn === 'mp3' ? 'hovered' : ''}`}
+                            onMouseEnter={() => setHoveredBtn('mp3')}
                             onMouseLeave={() => setHoveredBtn(null)}
                             disabled={isDownloading}
                           >
-                            Download Video
+                            🎵 Download MP3
                           </button>
                         </div>
                       </div>
