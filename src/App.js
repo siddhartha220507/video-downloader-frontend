@@ -183,7 +183,7 @@ function App() {
                       value={url}
                       onChange={(e) => setUrl(e.target.value)}
                       className="form-input"
-                      disabled={isLoadingInfo || isDownloading}
+                      disabled={isDownloading}
                     />
                     <button
                       onClick={() => download()}
