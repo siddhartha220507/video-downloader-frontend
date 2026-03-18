@@ -75,10 +75,30 @@ function App() {
   // Base API URL for Backend Connection (Support Local & Production Deployment)
   const API_BASE_URL = process.env.REACT_APP_API_URL || "https://pretty-art-production-ba0d.up.railway.app";
   
-  // Debug: Log API URL on mount
+  // Test backend connection and log for debugging
   useEffect(() => {
-    console.log("🔗 API Base URL:", API_BASE_URL);
-    console.log("🔗 Environment Variable:", process.env.REACT_APP_API_URL || "NOT SET");
+    const testConnection = async () => {
+      try {
+        console.log("🔗 API Base URL:", API_BASE_URL);
+        console.log("🔗 Environment Variable:", process.env.REACT_APP_API_URL || "NOT SET");
+        
+        const response = await fetch(`${API_BASE_URL}/api/health`, { 
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' }
+        });
+        if (response.ok) {
+          const data = await response.json();
+          console.log("✅ Backend Connection Success:", data);
+        } else {
+          console.error("❌ Backend returned error:", response.status);
+        }
+      } catch (error) {
+        console.error("🔴 Backend Connection Failed:", error.message);
+        console.warn("Make sure backend server is running and accessible at:", API_BASE_URL);
+      }
+    };
+    
+    testConnection();
   }, [API_BASE_URL]);
 
   // STEP 1: GET INFO
