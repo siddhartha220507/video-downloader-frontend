@@ -130,13 +130,14 @@ function App() {
     }
   };
 
-  // STEP 2: DOWNLOAD MP3 - DIRECT REDIRECT
-  const download = () => {
+  // STEP 2: DOWNLOAD MP3
+  const download = async () => {
     if (!url) {
       alert("❌ Please enter a YouTube URL");
       return;
     }
 
+    setIsDownloading(true);
     try {
       console.log("🚀 Starting download...");
       console.log("📍 API URL:", API_BASE_URL);
@@ -147,12 +148,33 @@ function App() {
       
       console.log("🔗 Download endpoint:", downloadUrl);
 
-      // Use window.location for direct redirect
-      window.location.href = downloadUrl;
+      // Fetch the download link from backend
+      const res = await fetch(downloadUrl);
+      
+      if (!res.ok) {
+        throw new Error(`API Error: ${res.status}`);
+      }
+
+      const data = await res.json();
+      
+      if (data.link) {
+        console.log("🔗 Redirecting to download via invisible anchor tag...");
+        const a = document.createElement('a');
+        a.href = data.link;
+        // Optionally set target="_blank" so we don't disrupt current page context navigating to external API
+        a.target = '_blank';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      } else {
+        throw new Error("No download link received");
+      }
 
     } catch (err) {
       console.error("🔴 Error:", err.message);
       alert("❌ Download Failed:\n" + err.message);
+    } finally {
+      setIsDownloading(false);
     }
   };
 
