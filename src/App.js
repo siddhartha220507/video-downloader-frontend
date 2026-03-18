@@ -235,9 +235,9 @@ function App() {
                         <h3 className="video-title">{video?.title || "No title"}</h3>
                         <div className="video-action-row">
                           <button
-                            onClick={() => download("video-only")}
-                            className={`download-btn ${hoveredBtn === 'video-only' ? 'hovered' : ''}`}
-                            onMouseEnter={() => setHoveredBtn('video-only')}
+                            onClick={() => download("mp4")}
+                            className={`download-btn ${hoveredBtn === 'mp4' ? 'hovered' : ''}`}
+                            onMouseEnter={() => setHoveredBtn('mp4')}
                             onMouseLeave={() => setHoveredBtn(null)}
                             disabled={isDownloading}
                           >
