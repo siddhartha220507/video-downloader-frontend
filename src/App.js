@@ -71,6 +71,12 @@ function App() {
 
   // Base API URL for Backend Connection (Support Local & Production Deployment)
   const API_BASE_URL = process.env.REACT_APP_API_URL || "https://pretty-art-production-ba0d.up.railway.app";
+  
+  // Debug: Log API URL on mount
+  useEffect(() => {
+    console.log("🔗 API Base URL:", API_BASE_URL);
+    console.log("🔗 Environment Variable:", process.env.REACT_APP_API_URL || "NOT SET");
+  }, []);
 
   // STEP 1: GET INFO
   const getInfo = async () => {
@@ -78,6 +84,7 @@ function App() {
     setIsLoadingInfo(true);
     setVideo(null); // hide previous
     try {
+      console.log("🚀 Fetching from:", `${API_BASE_URL}/api/info`);
       const res = await fetch(`${API_BASE_URL}/api/info`, {
         method: "POST",
         headers: {
@@ -86,12 +93,21 @@ function App() {
         body: JSON.stringify({ url }),
       });
 
+      console.log("📊 Response Status:", res.status, res.statusText);
+      
+      if (!res.ok) {
+        const errorText = await res.text();
+        console.error("❌ Error Response:", res.status, errorText);
+        alert(`Error: ${res.status} - ${errorText}`);
+        return;
+      }
+
       const data = await res.json();
       console.log("📥 Info Response:", data);
       setVideo(data);
     } catch (err) {
-      console.error(err);
-      alert("Error fetching info");
+      console.error("🔴 Fetch Error:", err.message);
+      alert("Error fetching info: " + err.message);
     } finally {
       setIsLoadingInfo(false);
     }
@@ -101,22 +117,27 @@ function App() {
   const download = async (type) => {
     setIsDownloading(true);
     try {
+      console.log("🚀 Downloading from:", `${API_BASE_URL}/api/download`);
       const res = await fetch(`${API_BASE_URL}/api/download`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ url, type }), // 🔥 type send ho raha hai
+        body: JSON.stringify({ url, type }),
       });
 
+      console.log("📊 Download Response Status:", res.status, res.statusText);
+      
       const text = await res.text();
 
       if (!res.ok) {
+        console.error("❌ Download Error:", res.status, text);
         alert("Error: " + text);
         return;
       }
 
       const data = JSON.parse(text);
+      console.log("📥 Download Data:", data);
 
       if (!data.downloadUrl) {
         alert("No download link");
@@ -126,8 +147,8 @@ function App() {
       window.open(data.downloadUrl);
 
     } catch (err) {
-      console.error(err);
-      alert("Error downloading file");
+      console.error("🔴 Download Error:", err.message);
+      alert("Error downloading file: " + err.message);
     } finally {
       setIsDownloading(false);
     }
