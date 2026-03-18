@@ -237,7 +237,7 @@ function App() {
                       disabled={isLoadingInfo || isDownloading || !url}
                       title="Direct MP3 download - no preview needed!"
                     >
-                      {isDownloading ? '⏳ Downloading...' : '⬇️ Download MP3'}
+                      {isDownloading ? '⏳ Processing...' : '⬇️ Download MP3'}
                     </button>
                   </div>
                 </div>
@@ -252,7 +252,7 @@ function App() {
                 {isDownloading && (
                   <div className="glass-panel loader-box animate-fade-in">
                     <div className="loader-spinner secondary"></div>
-                    <p className="loader-text">🎵 Downloading MP3 music. Almost there...</p>
+                    <p className="loader-text">🎵 Preparing your MP3... Please wait (20–30 sec)</p>
                   </div>
                 )}
 
