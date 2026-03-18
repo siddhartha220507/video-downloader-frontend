@@ -163,6 +163,7 @@ function App() {
         a.href = data.link;
         // Optionally set target="_blank" so we don't disrupt current page context navigating to external API
         a.target = '_blank';
+        a.download = 'audio.mp3';
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
