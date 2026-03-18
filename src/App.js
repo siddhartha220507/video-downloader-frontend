@@ -6,8 +6,7 @@ function App() {
   const [url, setUrl] = useState("");
   const [video, setVideo] = useState(null);
 
-  // New States for Features
-  const [isLoadingInfo, setIsLoadingInfo] = useState(false);
+  // Download State
   const [isDownloading, setIsDownloading] = useState(false);
   const [themeIndex, setThemeIndex] = useState(0);
 
@@ -101,40 +100,7 @@ function App() {
     testConnection();
   }, [API_BASE_URL]);
 
-  // STEP 1: GET INFO
-  const getInfo = async () => {
-    if (!url) return;
-    setIsLoadingInfo(true);
-    setVideo(null); // hide previous
-    try {
-      console.log("🚀 Fetching from:", `${API_BASE_URL}/api/info`);
-      const res = await fetch(`${API_BASE_URL}/api/info`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ url }),
-      });
 
-      console.log("📊 Response Status:", res.status, res.statusText);
-      
-      if (!res.ok) {
-        const errorText = await res.text();
-        console.error("❌ Error Response:", res.status, errorText);
-        alert(`Error: ${res.status} - ${errorText}`);
-        return;
-      }
-
-      const data = await res.json();
-      console.log("📥 Info Response:", data);
-      setVideo(data.videoDetails || data);
-    } catch (err) {
-      console.error("🔴 Fetch Error:", err.message);
-      alert("Error fetching info: " + err.message);
-    } finally {
-      setIsLoadingInfo(false);
-    }
-  };
 
   // STEP 2: DOWNLOAD MP3 - STREAMING VIA BACKEND PROXY
   const download = () => {
@@ -220,34 +186,18 @@ function App() {
                       disabled={isLoadingInfo || isDownloading}
                     />
                     <button
-                      onClick={getInfo}
-                      className={`form-submit-btn ${hoveredBtn === 'getInfo' ? 'hovered' : ''}`}
-                      onMouseEnter={() => setHoveredBtn('getInfo')}
-                      onMouseLeave={() => setHoveredBtn(null)}
-                      disabled={isLoadingInfo || isDownloading || !url}
-                    >
-                      {isLoadingInfo ? 'Authenticating...' : 'Get Info'}
-                    </button>
-                    <button
                       onClick={() => download()}
-                      className={`form-submit-btn ${hoveredBtn === 'directDownload' ? 'hovered' : ''}`}
+                      className={`form-submit-btn ${hoveredBtn === 'download' ? 'hovered' : ''}`}
                       style={{ background: 'linear-gradient(135deg, #00d4ff, #0099ff)' }}
-                      onMouseEnter={() => setHoveredBtn('directDownload')}
+                      onMouseEnter={() => setHoveredBtn('download')}
                       onMouseLeave={() => setHoveredBtn(null)}
-                      disabled={isLoadingInfo || isDownloading || !url}
-                      title="Direct MP3 download - no preview needed!"
+                      disabled={isDownloading || !url}
+                      title="Direct MP3 download"
                     >
                       {isDownloading ? '⏳ Processing...' : '⬇️ Download MP3'}
                     </button>
                   </div>
                 </div>
-
-                {isLoadingInfo && (
-                  <div className="glass-panel loader-box animate-fade-in">
-                    <div className="loader-spinner"></div>
-                    <p className="loader-text">Fetching media information. Please wait...</p>
-                  </div>
-                )}
 
                 {isDownloading && (
                   <div className="glass-panel loader-box animate-fade-in">
@@ -256,32 +206,7 @@ function App() {
                   </div>
                 )}
 
-                {!isLoadingInfo && video && (
-                  <div className="glass-panel video-wrapper animate-fade-in">
-                    <div className="video-info-container">
-                      <img 
-                        src={video?.thumbnail || "https://via.placeholder.com/300"} 
-                        alt="Video thumbnail" 
-                        className="video-thumbnail"
-                        onError={(e) => e.target.src = "https://via.placeholder.com/300"}
-                      />
-                      <div className="video-details">
-                        <h3 className="video-title">{video?.title || "No title"}</h3>
-                        <div className="video-action-row">
-                          <button
-                            onClick={() => download()}
-                            className={`download-btn ${hoveredBtn === 'mp3' ? 'hovered' : ''}`}
-                            onMouseEnter={() => setHoveredBtn('mp3')}
-                            onMouseLeave={() => setHoveredBtn(null)}
-                            disabled={isDownloading}
-                          >
-                            🎵 Download MP3
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
+
               </div>
             </div>
           </div>
